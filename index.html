@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Holesky Block Height</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <h1>Holesky Block Height Viewer</h1>
+  <button id="getBlockHeight">Get Current Block Height</button>
+  <p id="blockHeight">Block Height will appear here...</p>
+
+  <script>
+    const button = document.getElementById("getBlockHeight");
+    const output = document.getElementById("blockHeight");
+
+    button.addEventListener("click", async () => {
+      if (typeof window.ethereum === "undefined") {
+        output.textContent = "MetaMask is not installed.";
+        return;
+      }
+
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        const provider = new ethers.BrowserProvider(window.ethereum);
+
+        const blockNumber = await provider.getBlockNumber();
+
+        output.textContent = `Current block height: ${blockNumber}`;
+      } catch (err) {
+        console.error(err);
+        output.textContent = `Error: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
