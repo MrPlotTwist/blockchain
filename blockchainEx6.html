@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ERC20 Balance Checker</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <h1>Check ERC20 Balance</h1>
+  <button id="checkBalance">Check My Balance</button>
+  <p id="result">Your balance will appear here...</p>
+
+  <script>
+    const CONTRACT_ADDRESS = "0x7d37003f30c88af3999f8ddb33df456c529cb004fba1df7228147e2f0e977165";
+    const ABI = [
+      "function balanceOf(address owner) view returns (uint256)",
+      "function decimals() view returns (uint8)"
+    ];
+
+    document.getElementById("checkBalance").addEventListener("click", async () => {
+      const result = document.getElementById("result");
+
+      if (typeof window.ethereum === "undefined") {
+        result.textContent = "MetaMask is not installed.";
+        return;
+      }
+
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
+
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+
+        const [rawBalance, decimals] = await Promise.all([
+          contract.balanceOf(userAddress),
+          contract.decimals()
+        ]);
+
+        const formattedBalance = ethers.formatUnits(rawBalance, decimals);
+
+        result.textContent = `Your balance: ${formattedBalance}`;
+      } catch (err) {
+        console.error(err);
+        result.textContent = `Error: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
