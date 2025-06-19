@@ -11,39 +11,40 @@
   <p id="result">Your balance will appear here...</p>
 
   <script>
-    const CONTRACT_ADDRESS = "0x254997f48B5f371D06638B8B2aAf72A417f7A673";
-    const ABI = [
-      "function balanceOf(address owner) view returns (uint256)",
-      "function decimals() view returns (uint8)"
-    ];
+const CONTRACT_ADDRESS = "0x254997f48B5f371D06638B8B2aAf72A417f7A673";
+const ABI = [
+  "function balanceOf(address owner) view returns (uint256)",
+  "function decimals() view returns (uint8)"
+];
 
-    document.getElementById("checkBalance").addEventListener("click", async () => {
-      const result = document.getElementById("result");
+document.getElementById("checkBalance").addEventListener("click", async () => {
+  const result = document.getElementById("result");
 
-      if (typeof window.ethereum === "undefined") {
-        result.textContent = "MetaMask is not installed.";
-        return;
-      }
+  if (typeof window.ethereum === "undefined") {
+    result.textContent = "MetaMask is not installed.";
+    return;
+  }
 
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const userAddress = accounts[0];
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const userAddress = accounts[0];
 
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+    const provider = new ethers.JsonRpcProvider(window.ethereum);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
 
-        const [rawBalance, decimals] = await Promise.all([
-          contract.balanceOf(userAddress),
-          contract.decimals()
-        ]);
+    const [rawBalance, decimals] = await Promise.all([
+      contract.balanceOf(userAddress),
+      contract.decimals()
+    ]);
 
-        const formattedBalance = ethers.formatUnits(rawBalance, decimals);
-        result.textContent = `Your balance: ${formattedBalance}`;
-      } catch (err) {
-        console.error(err);
-        result.textContent = `Error: ${err.message}`;
-      }
-    });
-  </script>
+    const formattedBalance = ethers.formatUnits(rawBalance, decimals);
+    result.textContent = `Your balance: ${formattedBalance}`;
+  } catch (err) {
+    console.error(err);
+    result.textContent = `Error: ${err.message}`;
+  }
+});
+</script>
+
 </body>
 </html>
